@@ -1,7 +1,7 @@
 require("dotenv").config();
 var axios = require("axios");
 var keys = require("./keys.js");
-// console.log(keys);
+var Spotify = require('node-spotify-api');
 // var spotify = new Spotify(keys.spotify);
 var fs = require('fs');
 var arg = process.argv[2];
@@ -16,8 +16,8 @@ var movURL = "http://www.omdbapi.com/?t=" + term + "&y=&plot=short&apikey=trilog
 
 switch (arg) {
     case "concert-this":
-        console.log("Concert Function Selected");
-        concert();
+        // console.log("Concert Function Selected");
+        concert(term);
         break;
 
     case "spotify-this-song":
@@ -50,19 +50,49 @@ switch (arg) {
 }
 
 function concert(term) {
-    axios.get(conURL).then(
-        function (response) {
-            console.log(response);
-        }
-    );
+    // console.log("Looking for : " + term);
+    if (term) {
+        // console.log("Concert URL: " + movURL);
+        axios.get(conURL).then(
+                function (response) {
+                    // console.log(response.data[0]);
+                    // * Name of the venue
+                    console.log("Venue: "+ response.data[0].venue.name);
+                    // * Venue location
+                    console.log("Country: "+ response.data[0].venue.country);
+                    // * Date of the Event (use moment to format this as "MM/DD/YYYY")
+                    // console.log("Date: "+ response.data[0].datetime);
+                    var time = response.data[0].datetime;
+                    // stringify(time);
+                    var dateYear = time.slice(0, 4);
+                    var dateDay = time.slice(8, 10);
+                    var dateMonth = time.slice(5, 7);
+                    console.log("Date: "+dateMonth+"/"+dateDay+"/"+dateYear);
+                    console.log("---------------------------------");
+
+                })
+            .catch(function (error) {
+                console.log("Try agian");
+            });
+    } else {
+        axios.get("http://www.omdbapi.com/?t=mr+nobody&y=&plot=short&apikey=trilogy").then(
+            function (response) {
+                console.log("---------------------------------");
+                console.log("Band Not Found");
+                console.log("---------------------------------");
+            });
+    }
 }
 
 function spotifyFun(term) {
-    var Spotify = require('node-spotify-api');
 
+    console.log("Searching Spotify for " + term);
+    // console.log(keys);
+    // console.log(keys.spotify.id);
+    // console.log(keys.spotify.secret);
     var spotify = new Spotify({
-        id: spotID,
-        secret: spotSecret
+        id: keys.spotify.id,
+        secret: keys.spotify.secret
     });
 
     spotify.search({
@@ -72,7 +102,20 @@ function spotifyFun(term) {
         if (err) {
             return console.log('Error occurred: ' + err);
         }
-        console.log(data);
+        // console.log(data.tracks.items[0]);
+        // * Artist(s)
+        for(var i = 0; i < data.tracks.items[0].artists.length; i++){
+        console.log("Artist: "+data.tracks.items[0].artists[i].name);
+        }
+        // * The song's name
+        console.log("Song Name: "+data.tracks.items[0].name);
+   
+        // * A preview link of the song from Spotify
+        console.log("Preview Link: "+data.tracks.items[0].preview_url);
+
+        // * The album that the song is from
+        console.log("Album: "+data.tracks.items[0].album.name);
+
     });
 }
 
