@@ -86,7 +86,7 @@ function concert(term) {
 
 function spotifyFun(term) {
 
-    console.log("Searching Spotify for " + term);
+    // console.log("Searching Spotify for " + term);
     // console.log(keys);
     // console.log(keys.spotify.id);
     // console.log(keys.spotify.secret);
@@ -176,6 +176,6 @@ function movie(term) {
 function dwis() {
     fs.readFile('random.txt', "utf8", function (error, data) {
         var rdm = data.split(',');
-        spotifySong(rdm[1]);
+        spotifyFun(rdm[1]);
     });
 }
